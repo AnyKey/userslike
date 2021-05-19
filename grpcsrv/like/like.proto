@@ -3,7 +3,7 @@ syntax = "proto3";
 package main;
 option go_package = "users_like/grpcsrv/like";
 
-service Greeter {
+service SubSrv {
 
   rpc SetLike (LikeRequest) returns (LikeReply) {}
 

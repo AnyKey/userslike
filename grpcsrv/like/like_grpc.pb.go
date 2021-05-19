@@ -14,122 +14,122 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// GreeterClient is the client API for Greeter service.
+// SubSrvClient is the client API for SubSrv service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GreeterClient interface {
+type SubSrvClient interface {
 	SetLike(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error)
 	GetLike(ctx context.Context, in *TrackRequest, opts ...grpc.CallOption) (*TrackReply, error)
 }
 
-type greeterClient struct {
+type subSrvClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewGreeterClient(cc grpc.ClientConnInterface) GreeterClient {
-	return &greeterClient{cc}
+func NewSubSrvClient(cc grpc.ClientConnInterface) SubSrvClient {
+	return &subSrvClient{cc}
 }
 
-func (c *greeterClient) SetLike(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error) {
+func (c *subSrvClient) SetLike(ctx context.Context, in *LikeRequest, opts ...grpc.CallOption) (*LikeReply, error) {
 	out := new(LikeReply)
-	err := c.cc.Invoke(ctx, "/main.Greeter/SetLike", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/main.SubSrv/SetLike", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *greeterClient) GetLike(ctx context.Context, in *TrackRequest, opts ...grpc.CallOption) (*TrackReply, error) {
+func (c *subSrvClient) GetLike(ctx context.Context, in *TrackRequest, opts ...grpc.CallOption) (*TrackReply, error) {
 	out := new(TrackReply)
-	err := c.cc.Invoke(ctx, "/main.Greeter/GetLike", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/main.SubSrv/GetLike", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// GreeterServer is the server API for Greeter service.
-// All implementations must embed UnimplementedGreeterServer
+// SubSrvServer is the server API for SubSrv service.
+// All implementations must embed UnimplementedSubSrvServer
 // for forward compatibility
-type GreeterServer interface {
+type SubSrvServer interface {
 	SetLike(context.Context, *LikeRequest) (*LikeReply, error)
 	GetLike(context.Context, *TrackRequest) (*TrackReply, error)
-	mustEmbedUnimplementedGreeterServer()
+	mustEmbedUnimplementedSubSrvServer()
 }
 
-// UnimplementedGreeterServer must be embedded to have forward compatible implementations.
-type UnimplementedGreeterServer struct {
+// UnimplementedSubSrvServer must be embedded to have forward compatible implementations.
+type UnimplementedSubSrvServer struct {
 }
 
-func (UnimplementedGreeterServer) SetLike(context.Context, *LikeRequest) (*LikeReply, error) {
+func (UnimplementedSubSrvServer) SetLike(context.Context, *LikeRequest) (*LikeReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetLike not implemented")
 }
-func (UnimplementedGreeterServer) GetLike(context.Context, *TrackRequest) (*TrackReply, error) {
+func (UnimplementedSubSrvServer) GetLike(context.Context, *TrackRequest) (*TrackReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLike not implemented")
 }
-func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
+func (UnimplementedSubSrvServer) mustEmbedUnimplementedSubSrvServer() {}
 
-// UnsafeGreeterServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GreeterServer will
+// UnsafeSubSrvServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SubSrvServer will
 // result in compilation errors.
-type UnsafeGreeterServer interface {
-	mustEmbedUnimplementedGreeterServer()
+type UnsafeSubSrvServer interface {
+	mustEmbedUnimplementedSubSrvServer()
 }
 
-func RegisterGreeterServer(s grpc.ServiceRegistrar, srv GreeterServer) {
-	s.RegisterService(&Greeter_ServiceDesc, srv)
+func RegisterSubSrvServer(s grpc.ServiceRegistrar, srv SubSrvServer) {
+	s.RegisterService(&SubSrv_ServiceDesc, srv)
 }
 
-func _Greeter_SetLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SubSrv_SetLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LikeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GreeterServer).SetLike(ctx, in)
+		return srv.(SubSrvServer).SetLike(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/main.Greeter/SetLike",
+		FullMethod: "/main.SubSrv/SetLike",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeterServer).SetLike(ctx, req.(*LikeRequest))
+		return srv.(SubSrvServer).SetLike(ctx, req.(*LikeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Greeter_GetLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SubSrv_GetLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TrackRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GreeterServer).GetLike(ctx, in)
+		return srv.(SubSrvServer).GetLike(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/main.Greeter/GetLike",
+		FullMethod: "/main.SubSrv/GetLike",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GreeterServer).GetLike(ctx, req.(*TrackRequest))
+		return srv.(SubSrvServer).GetLike(ctx, req.(*TrackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
+// SubSrv_ServiceDesc is the grpc.ServiceDesc for SubSrv service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Greeter_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.Greeter",
-	HandlerType: (*GreeterServer)(nil),
+var SubSrv_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "main.SubSrv",
+	HandlerType: (*SubSrvServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "SetLike",
-			Handler:    _Greeter_SetLike_Handler,
+			Handler:    _SubSrv_SetLike_Handler,
 		},
 		{
 			MethodName: "GetLike",
-			Handler:    _Greeter_GetLike_Handler,
+			Handler:    _SubSrv_GetLike_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

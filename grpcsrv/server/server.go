@@ -15,7 +15,7 @@ const (
 
 type server struct {
 	Repo repository.Repository
-	pb.UnimplementedGreeterServer
+	pb.UnimplementedSubSrvServer
 }
 
 func (s *server) SetLike(ctx context.Context, in *pb.LikeRequest) (*pb.LikeReply, error) {
@@ -25,20 +25,20 @@ func (s *server) SetLike(ctx context.Context, in *pb.LikeRequest) (*pb.LikeReply
 }
 func (s *server) GetLike(ctx context.Context, in *pb.TrackRequest) (*pb.TrackReply, error) {
 	log.Printf("Track: %v, Artist: %v", in.GetName(), in.GetArtist())
-	s.Repo.GetTracks(in.GetName(),in.GetArtist())
+	s.Repo.GetTracks(in.GetName(), in.GetArtist())
 	return &pb.TrackReply{
 		Track:    "Sound",
 		Username: "Dude",
 	}, nil
 }
 
-func Run( repo repository.Repository) {
+func Run(repo repository.Repository) {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterGreeterServer(s, &server{Repo: repo})
+	pb.RegisterSubSrvServer(s, &server{Repo: repo})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
