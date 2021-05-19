@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package main;
+option go_package = "users_like/grpcsrv/like";
+
+service Greeter {
+
+  rpc SetLike (LikeRequest) returns (LikeReply) {}
+
+  rpc GetLike (TrackRequest) returns (TrackReply) {}
+}
+// Q1: Set "like" for track request
+message LikeRequest {
+  string name = 1;
+  string artist = 2;
+  string jwt = 3;
+}
+// Q2: Likes for track request
+message TrackRequest {
+  string name = 1;
+  string artist = 2;
+}
+// Q1: Set "like" for track response
+message LikeReply {
+  string message = 1;
+}
+// Q2: Likes for track response
+message TrackReply {
+  string track = 1;
+  string username = 2;
+}
