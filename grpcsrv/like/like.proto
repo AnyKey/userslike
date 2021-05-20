@@ -19,6 +19,7 @@ message LikeRequest {
 message TrackRequest {
   string name = 1;
   string artist = 2;
+  string jwt = 3;
 }
 // Q1: Set "like" for track response
 message LikeReply {
@@ -26,6 +27,7 @@ message LikeReply {
 }
 // Q2: Likes for track response
 message TrackReply {
-  string track = 1;
-  string username = 2;
+  string name = 1;
+  string artist = 2;
+  bytes user = 3;
 }

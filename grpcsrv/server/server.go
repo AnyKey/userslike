@@ -2,6 +2,9 @@ package server
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -19,16 +22,50 @@ type server struct {
 }
 
 func (s *server) SetLike(ctx context.Context, in *pb.LikeRequest) (*pb.LikeReply, error) {
-	log.Printf("Track: %v, Artist: %v, JWT: %v", in.GetName(), in.GetArtist(), in.GetJwt())
-
+	myToken := in.GetJwt()
+	claims := jwt.MapClaims{}
+	res, err := jwt.ParseWithClaims(myToken, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("key"), nil
+	})
+	if err != nil {
+		return nil, errors.New("unauthorized")
+	}
+	if !res.Valid {
+		return nil, errors.New("unauthorized")
+	}
+	user := (claims["name"]).(string)
+	err = s.Repo.SetLike(in.GetName(), in.GetArtist(), user)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Track: %v, Artist: %v, UserName: %v", in.GetName(), in.GetArtist(), user)
 	return &pb.LikeReply{Message: "OK "}, nil
 }
 func (s *server) GetLike(ctx context.Context, in *pb.TrackRequest) (*pb.TrackReply, error) {
-	log.Printf("Track: %v, Artist: %v", in.GetName(), in.GetArtist())
-	s.Repo.GetTracks(in.GetName(), in.GetArtist())
+	myToken := in.GetJwt()
+	claims := jwt.MapClaims{}
+	res, err := jwt.ParseWithClaims(myToken, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("key"), nil
+	})
+	if err != nil {
+		return nil, errors.New("unauthorized")
+	}
+	if !res.Valid {
+		return nil, errors.New("unauthorized")
+	}
+	result, err := s.Repo.GetTracks(in.GetName(), in.GetArtist())
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := json.Marshal(result)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("Users: %v", result)
 	return &pb.TrackReply{
-		Track:    "Sound",
-		Username: "Dude",
+		Name:   in.GetName(),
+		Artist: in.GetArtist(),
+		User:   bytes,
 	}, nil
 }
 

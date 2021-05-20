@@ -1,8 +1,11 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"github.com/pkg/errors"
+	"log"
 )
 
 type Repository struct {
@@ -10,23 +13,27 @@ type Repository struct {
 }
 
 type TrackSelect struct {
-	Name   string `json:"name"`
-	Artist string `json:"artist"`
-	Album  string `json:"album"`
+	Name     string `json:"name"`
+	Artist   string `json:"artist"`
+	Username string `json:"username"`
 }
-func (repo *Repository) GetTracks(track string, artist string) ([]TrackSelect, error) {
+type LikeSelect struct {
+	Username string `json:"username"`
+}
 
-	var trackList []TrackSelect
-	rows, err := repo.Conn.Query("SELECT track.name as track, artist.name as artist, album.name as album  FROM track, artist, album "+
-		"WHERE track.artist_id = artist.id and track.album_id = album.id and track.name = $1 AND artist.name = $2", track, artist)
+func (repo *Repository) GetTracks(track string, artist string) ([]LikeSelect, error) {
+
+	var trackList []LikeSelect
+	rows, err := repo.Conn.Query("SELECT like_list.username FROM track_list, like_list "+
+		"WHERE like_list.track_id = track_list.id AND track_list.name = $1 AND track_list.artist = $2", track, artist)
 	if err != nil {
 		return nil, errors.Wrap(err, "error select in DB!")
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		tl := TrackSelect{}
-		err := rows.Scan(&tl.Name, &tl.Artist, &tl.Album)
+		tl := LikeSelect{}
+		err := rows.Scan(&tl.Username)
 		if err != nil {
 			return nil, errors.Wrap(err, "error Scan values")
 		}
@@ -34,4 +41,74 @@ func (repo *Repository) GetTracks(track string, artist string) ([]TrackSelect, e
 	}
 
 	return trackList, nil
+}
+
+func (repo *Repository) SetLike(name, artist, username string) error {
+	ctx := context.Background()
+	tx, err := repo.Conn.BeginTx(ctx, nil)
+	if err != nil {
+		log.Println(err)
+	}
+	// defer commit rollback tnx
+	var lastinsertedid int
+	rows, err := tx.QueryContext(ctx, "SELECT id FROM track_list WHERE name = $1 AND artist =$2", name, artist)
+	if err != nil {
+		return errors.Wrap(err, "error select in DB!")
+	}
+	var trackId int
+	if rows != nil {
+		var tl int
+		for rows.Next() {
+			err = rows.Scan(&tl)
+			if err != nil {
+				return errors.Wrap(err, "error Scan values")
+			}
+		}
+		trackId = tl
+	}
+	if trackId == 0 {
+		err = tx.QueryRowContext(ctx, "INSERT INTO track_list (name, artist) VALUES ($1, $2) returning id", name, artist).Scan(&lastinsertedid)
+		if err != nil {
+			tx.Rollback()
+			fmt.Println("TRACK!", err.Error())
+			return err
+		}
+		trackId = lastinsertedid
+	}
+	rows.Close()
+	if trackId == 0 {
+		tx.Rollback()
+		return errors.New("Empty track")
+	}
+
+	rows, err = tx.QueryContext(ctx, "SELECT id FROM like_list WHERE username = $1 AND track_id =$2", username, trackId)
+	if err != nil {
+		return errors.Wrap(err, "error select in DB!")
+	}
+	if rows != nil {
+		var tl int
+		for rows.Next() {
+			err = rows.Scan(&tl)
+			if err != nil {
+				return errors.Wrap(err, "error Scan values")
+			}
+		}
+		if tl != 0 {
+			return nil
+		}
+
+	}
+
+	_, err = tx.ExecContext(ctx, "INSERT INTO like_list (username, track_id) VALUES ($1, $2)", username, trackId)
+	if err != nil && err == sql.ErrNoRows {
+		fmt.Println("LIKE!", err.Error())
+		tx.Rollback()
+		return nil
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
 }

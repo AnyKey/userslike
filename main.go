@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"log"
 	"users_like/grpcsrv/server"
 	"users_like/repository"
@@ -9,7 +10,7 @@ import (
 
 func main() {
 	db := initPostgres("dbname=musicdb user=postgres password=123 port=5432 sslmode=disable")
-	conn:= repository.Repository{Conn: db}
+	conn := repository.Repository{Conn: db}
 	server.Run(conn)
 }
 
