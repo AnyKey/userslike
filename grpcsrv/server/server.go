@@ -38,7 +38,6 @@ func (s *server) SetLike(ctx context.Context, in *pb.LikeRequest) (*pb.LikeReply
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Track: %v, Artist: %v, UserName: %v", in.GetName(), in.GetArtist(), user)
 	return &pb.LikeReply{Message: "OK "}, nil
 }
 func (s *server) GetLike(ctx context.Context, in *pb.TrackRequest) (*pb.TrackReply, error) {
@@ -61,7 +60,6 @@ func (s *server) GetLike(ctx context.Context, in *pb.TrackRequest) (*pb.TrackRep
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Users: %v", result)
 	return &pb.TrackReply{
 		Name:   in.GetName(),
 		Artist: in.GetArtist(),
