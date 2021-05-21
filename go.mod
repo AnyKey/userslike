@@ -1,4 +1,4 @@
-module users_like
+module github.com/AnyKey/userslike
 
 go 1.16
 
