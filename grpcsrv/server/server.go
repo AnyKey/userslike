@@ -3,13 +3,13 @@ package server
 import (
 	"context"
 	"encoding/json"
+	pb "github.com/AnyKey/userslike/grpcsrv/like"
+	"github.com/AnyKey/userslike/repository"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	pb "users_like/grpcsrv/like"
-	"users_like/repository"
 )
 
 const (

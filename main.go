@@ -2,10 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"github.com/AnyKey/userslike/grpcsrv/server"
+	"github.com/AnyKey/userslike/repository"
 	_ "github.com/lib/pq"
 	"log"
-	"users_like/grpcsrv/server"
-	"users_like/repository"
 )
 
 func main() {

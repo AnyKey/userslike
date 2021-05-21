@@ -10,5 +10,5 @@ require (
 	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98 // indirect
 	google.golang.org/grpc v1.37.1
 	google.golang.org/protobuf v1.26.0
-//	git.zuzex.com/agordienko/users_like c96ada67
+//	git.zuzex.com/agordienko/users_like v1.3.1
 )
