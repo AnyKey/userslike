@@ -52,7 +52,7 @@ func (s *server) GetLike(ctx context.Context, in *pb.TrackRequest) (*pb.TrackRep
 	if !res.Valid {
 		return nil, errors.New("unauthorized")
 	}
-	result, err := s.Repo.GetTracks(in.GetName(), in.GetArtist())
+	result, lk, err := s.Repo.GetTracks(in.GetName(), in.GetArtist())
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +61,10 @@ func (s *server) GetLike(ctx context.Context, in *pb.TrackRequest) (*pb.TrackRep
 		return nil, err
 	}
 	return &pb.TrackReply{
-		Name:   in.GetName(),
-		Artist: in.GetArtist(),
-		User:   bytes,
+		Name:      in.GetName(),
+		Artist:    in.GetArtist(),
+		User:      bytes,
+		LikeCount: *lk,
 	}, nil
 }
 

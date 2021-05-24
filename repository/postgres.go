@@ -21,13 +21,13 @@ type LikeSelect struct {
 	Username string `json:"username"`
 }
 
-func (repo *Repository) GetTracks(track string, artist string) ([]LikeSelect, error) {
+func (repo *Repository) GetTracks(track string, artist string) ([]LikeSelect, *string, error) {
 
 	var trackList []LikeSelect
 	rows, err := repo.Conn.Query("SELECT like_list.username FROM track_list, like_list "+
 		"WHERE like_list.track_id = track_list.id AND track_list.name = $1 AND track_list.artist = $2", track, artist)
 	if err != nil {
-		return nil, errors.Wrap(err, "error select in DB!")
+		return nil, nil, errors.Wrap(err, "error select in DB!")
 	}
 	defer rows.Close()
 
@@ -35,12 +35,26 @@ func (repo *Repository) GetTracks(track string, artist string) ([]LikeSelect, er
 		tl := LikeSelect{}
 		err := rows.Scan(&tl.Username)
 		if err != nil {
-			return nil, errors.Wrap(err, "error Scan values")
+			return nil, nil, errors.Wrap(err, "error Scan values")
 		}
 		trackList = append(trackList, tl)
 	}
+	rows, err = repo.Conn.Query("SELECT count(like_list.username) AS track_count, track_list.name, track_list.artist "+
+		"WHERE like_list.track_id = track_list.id AND track_list.name = $1 AND track_list.artist = $2 GROUP BY track_list.name, track_list.artist", track, artist)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "error select in DB!")
+	}
+	defer rows.Close()
+	var likeCount *string
+	for rows.Next() {
 
-	return trackList, nil
+		err := rows.Scan(&likeCount)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "error Scan values")
+		}
+	}
+
+	return trackList, likeCount, nil
 }
 
 func (repo *Repository) SetLike(name, artist, username string) error {

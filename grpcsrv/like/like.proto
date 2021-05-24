@@ -30,4 +30,5 @@ message TrackReply {
   string name = 1;
   string artist = 2;
   bytes user = 3;
+  string like_count = 4;
 }
