@@ -39,7 +39,7 @@ func (repo *Repository) GetTracks(track string, artist string) ([]LikeSelect, *s
 		}
 		trackList = append(trackList, tl)
 	}
-	rows, err = repo.Conn.Query("SELECT count(like_list.username) AS track_count, track_list.name, track_list.artist "+
+	rows, err = repo.Conn.Query("SELECT count(like_list.username) AS track_count, track_list.name, track_list.artist FROM track_list, like_list"+
 		"WHERE like_list.track_id = track_list.id AND track_list.name = $1 AND track_list.artist = $2 GROUP BY track_list.name, track_list.artist", track, artist)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error select in DB!")
